@@ -5,8 +5,8 @@ defmodule BoardWeb.Router do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_flash
-    plug :protect_from_forgery
-    plug :put_secure_browser_headers
+    #plug :protect_from_forgery
+    #plug :put_secure_browser_headers
   end
 
   pipeline :api do
@@ -17,6 +17,9 @@ defmodule BoardWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+
+    post "/move/:ticket_id/to/:board_column_id", PageController, :move_to_column
+    post "/move/:ticket_id/to/:board_column_id/before/:before_ticket_id", PageController, :move_to_column
   end
 
   # Other scopes may use custom stacks.

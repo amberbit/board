@@ -1,3 +1,75 @@
 /* This file is for your main application css. */
 
 @import "./phoenix.css";
+
+.board-column {
+  border: 1px solid #eee;
+  border-radius: 3px;
+  background-color: #fafafa;
+  padding: 0 5px;
+  height: 600px;
+}
+
+.board-column h4 {
+  margin-bottom: 0;
+}
+
+.board-tickets {
+  padding: 0px;
+  height: 550px;
+}
+
+.board-tickets .ticket .ticket-title {
+  background-color: white;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  padding: 5px 10px;
+  margin: 0;
+  border-radius: 5px;
+}
+
+.ticket {
+  border-top: 10px solid transparent;
+  position: relative;
+  width: 100%;
+}
+
+.ticket.over {
+}
+
+.ticket .drop-ghost {
+  height: 0px;
+  transition: height 0.15s ease-out;
+}
+
+.ticket-title.pop {
+  box-shadow: 5px 5px 5px rgba(33, 33, 33, 0.5);
+}
+
+.ticket.over .drop-ghost,
+.board-tickets.over > .drop-ghost {
+  border-radius: 3px;
+  display: block;
+  opacity: 0.9;
+  border: 1px solid #eee;
+  background-color: white;
+  transform: scale(0.95);
+}
+
+.ticket.over .drop-ghost {
+  margin-bottom: 10px;
+}
+
+.board-tickets.over > .drop-ghost {
+  margin-top: 10px;
+}
+
+.dnd-poly-drag-image {
+    opacity: .5 !important;
+}
+
+.dnd-poly-drag-image.dnd-poly-snapback {
+    transition-property: transform, -webkit-transform !important;
+    transition-duration: 250ms !important;
+    transition-timing-function: ease-out !important;
+}

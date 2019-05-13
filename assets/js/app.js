@@ -15,3 +15,125 @@ import "phoenix_html"
 //
 // Local files can be imported directly using relative paths, for example:
 // import socket from "./socket"
+
+//import "./DragDropTouch";
+
+import {polyfill} from "mobile-drag-drop";
+
+import {scrollBehaviourDragImageTranslateOverride} from "mobile-drag-drop/scroll-behaviour";
+
+polyfill({
+       dragImageTranslateOverride: scrollBehaviourDragImageTranslateOverride
+});
+
+const init = function() {
+  let currentTicketHeight = 0;
+
+  document.querySelector(".boards").addEventListener("dragstart", (e) => {
+    if (e.target.classList.contains("ticket-title")) {
+      e.stopPropagation();
+
+      currentTicketHeight = e.target.offsetHeight;
+
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', e.target.getAttribute("data-ticket-id"));
+      //e.target.classList.add("pop");
+
+      setTimeout(function() { e.target.parentNode.style.display = 'none' }, 0);
+    }
+  });
+
+  document.querySelector(".boards").addEventListener("dragover", (e) => {
+    if (e.preventDefault)
+      e.preventDefault() // allows to drop
+
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+  });
+
+  document.querySelector(".boards").addEventListener("dragend", (e) => {
+    console.debug("dragend");
+  });
+
+  document.querySelector(".boards").addEventListener("drop", (e) => {
+    console.debug("drop");
+    const ticket_id = e.dataTransfer.getData('text/plain');
+    const column_id = document.querySelector(".over").closest(".board-column").getAttribute("data-column-id");
+
+    console.debug(`Dropped ticket with ID=${ticket_id} at column with ID=${column_id}`);
+
+    let before_ticket_id = null;
+
+    if (document.querySelector(".over").classList.contains("ticket")) {
+      before_ticket_id = document.querySelector(".over").getAttribute("data-ticket-id");
+      console.debug(`Before ticket with ID=${before_ticket_id}`);
+
+      fetch(`/move/${ticket_id}/to/${column_id}/before/${before_ticket_id}`, {method: "POST"}).then((res) => res.text()).then((html) => {
+        const response_dom = document.createRange().createContextualFragment(html).firstChild;
+        const response_boards = response_dom.querySelectorAll(".column");
+        document.querySelector(".boards").innerHTML = "";
+
+        for (var i=0; i<response_boards.length; i++) {
+          document.querySelector(".boards").appendChild(response_boards[i])
+        }
+      });
+
+    } else {
+      console.debug("At the end of the column");
+
+      fetch(`/move/${ticket_id}/to/${column_id}`, {method: "POST"}).then((res) => res.text()).then((html) => {
+        const response_dom = document.createRange().createContextualFragment(html).firstChild;
+        const response_boards = response_dom.querySelectorAll(".column");
+        document.querySelector(".boards").innerHTML = "";
+
+        for (var i=0; i<response_boards.length; i++) {
+          document.querySelector(".boards").appendChild(response_boards[i])
+        }
+      });
+    }
+  });
+
+  const deselectAll = function(selector, exceptNode) {
+    const otherNodes = Array.prototype.slice.call(document.querySelectorAll(selector));
+
+    otherNodes.map((node) => {
+      if (!!exceptNode || node !== exceptNode) {
+        node.classList.remove("over");
+      }
+    });
+  }
+
+  const adjustGhostHeights = function() {
+    const currentGhost = document.querySelector(".over > .drop-ghost");
+    const ghosts = Array.prototype.slice.call(document.querySelectorAll(".drop-ghost"));
+
+    ghosts.map((node) => {
+      if (currentGhost && currentGhost === node) {
+        node.style.height = currentTicketHeight + "px";
+      } else {
+        node.style.height = 0;
+      }
+    });
+  }
+
+  document.querySelector(".boards").addEventListener("dragenter", (e) => {
+    e.preventDefault();
+    if (e.target.classList.contains("ticket")) {
+      deselectAll(".ticket.over", e.target);
+      deselectAll(".board-tickets.over");
+      e.target.classList.add("over");
+    } else if (e.target.classList.contains("board-tickets")) {
+      deselectAll(".ticket.over");
+      deselectAll(".board-tickets.over", e.target);
+      e.target.classList.add("over");
+    }
+
+    adjustGhostHeights();
+  });
+
+  window.addEventListener( 'touchmove', function() {});
+
+};
+
+window.addEventListener("load", init);
+
