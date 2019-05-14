@@ -56,16 +56,9 @@ const init = function() {
     return false;
   });
 
-  document.querySelector(".boards").addEventListener("dragend", (e) => {
-    console.debug("dragend");
-  });
-
   document.querySelector(".boards").addEventListener("drop", (e) => {
-    console.debug("drop");
     const ticket_id = e.dataTransfer.getData('text/plain');
     const column_id = document.querySelector(".over").closest(".board-column").getAttribute("data-column-id");
-
-    console.debug(`Dropped ticket with ID=${ticket_id} at column with ID=${column_id}`);
 
     let before_ticket_id = null;
 
