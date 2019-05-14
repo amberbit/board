@@ -22,6 +22,11 @@ import {polyfill} from "mobile-drag-drop";
 
 import {scrollBehaviourDragImageTranslateOverride} from "mobile-drag-drop/scroll-behaviour";
 
+import LiveSocket from "phoenix_live_view"
+
+let liveSocket = new LiveSocket("/live")
+liveSocket.connect()
+
 polyfill({
        dragImageTranslateOverride: scrollBehaviourDragImageTranslateOverride
 });
@@ -66,30 +71,14 @@ const init = function() {
 
     if (document.querySelector(".over").classList.contains("ticket")) {
       before_ticket_id = document.querySelector(".over").getAttribute("data-ticket-id");
-      console.debug(`Before ticket with ID=${before_ticket_id}`);
-
-      fetch(`/move/${ticket_id}/to/${column_id}/before/${before_ticket_id}`, {method: "POST"}).then((res) => res.text()).then((html) => {
-        const response_dom = document.createRange().createContextualFragment(html).firstChild;
-        const response_boards = response_dom.querySelectorAll(".column");
-        document.querySelector(".boards").innerHTML = "";
-
-        for (var i=0; i<response_boards.length; i++) {
-          document.querySelector(".boards").appendChild(response_boards[i])
-        }
-      });
-
+      const target = document.querySelector(".over").closest("[data-phx-view]")
+      const phxEvent = {"ticket_id": ticket_id, "column_id": column_id, "before_ticket_id": before_ticket_id}
+      liveSocket.owner(target, view => view.pushEvent("drop", target, phxEvent))
     } else {
-      console.debug("At the end of the column");
-
-      fetch(`/move/${ticket_id}/to/${column_id}`, {method: "POST"}).then((res) => res.text()).then((html) => {
-        const response_dom = document.createRange().createContextualFragment(html).firstChild;
-        const response_boards = response_dom.querySelectorAll(".column");
-        document.querySelector(".boards").innerHTML = "";
-
-        for (var i=0; i<response_boards.length; i++) {
-          document.querySelector(".boards").appendChild(response_boards[i])
-        }
-      });
+      before_ticket_id = document.querySelector(".over").getAttribute("data-ticket-id");
+      const target = document.querySelector(".over").closest("[data-phx-view]")
+      const phxEvent = {"ticket_id": ticket_id, "column_id": column_id, "before_ticket_id": before_ticket_id}
+      liveSocket.owner(target, view => view.pushEvent("drop", target, phxEvent))
     }
   });
 
@@ -136,4 +125,5 @@ const init = function() {
 };
 
 window.addEventListener("load", init);
+
 

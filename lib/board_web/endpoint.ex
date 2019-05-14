@@ -23,6 +23,8 @@ defmodule BoardWeb.Endpoint do
     plug Phoenix.CodeReloader
   end
 
+  socket "/live", Phoenix.LiveView.Socket
+
   plug Plug.RequestId
   plug Plug.Logger
 

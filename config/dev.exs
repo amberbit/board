@@ -61,7 +61,8 @@ config :board, BoardWeb.Endpoint,
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
       ~r"lib/board_web/{live,views}/.*(ex)$",
-      ~r"lib/board_web/templates/.*(eex)$"
+      ~r"lib/board_web/templates/.*(eex)$",
+      ~r{lib/board_web/live/.*(ex)$}
     ]
   ]
 

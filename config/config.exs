@@ -15,7 +15,10 @@ config :board, BoardWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "XAEYiTiQmLMR7/Fem6Iah/lV1Wp/eIGKWt/HRMcfVQjKeUktdSEnQEWYWJ1pOFR3",
   render_errors: [view: BoardWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Board.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: Board.PubSub, adapter: Phoenix.PubSub.PG2],
+  live_view: [
+    signing_salt: "0YpyI3Ke9GXdLMCap6nUH6jrLF28SPCV1lktcanEr8TwCJee1XBrWQ4xLvoXo1CE"
+  ]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -24,6 +27,9 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+config :phoenix,
+  template_engines: [leex: Phoenix.LiveView.Engine]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
