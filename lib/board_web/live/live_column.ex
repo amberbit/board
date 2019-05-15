@@ -35,7 +35,11 @@ defmodule BoardWeb.LiveColumn do
 
     Board.Ticket.changeset(ticket, %{position: max_position + 1, board_column_id: board_column_id}) |> Board.Repo.update!()
 
-    {:noreply, assign(socket, column: find_column(socket.assigns.column.id))}
+    [ticket.board_column_id, socket.assigns.column.id]
+    |> Enum.uniq()
+    |> update_live_columns()
+
+    {:noreply, socket}
   end
 
   def handle_event(%{"before_ticket_id" => before_ticket_id, "column_id" => board_column_id, "ticket_id" => ticket_id}, _val, socket) do
@@ -55,12 +59,23 @@ defmodule BoardWeb.LiveColumn do
       Board.Ticket.changeset(ticket, %{position: position, board_column_id: board_column_id}) |> Board.Repo.update!()
     end)
 
-    {:noreply, assign(socket, column: find_column(socket.assigns.column.id))}
+    [ticket.board_column_id, socket.assigns.column.id]
+    |> Enum.uniq()
+    |> update_live_columns()
+
+    {:noreply, socket}
   end
 
   def mount(%{board_column_id: id}, socket) do
     column = %{tickets: tickets} = find_column(id)
+
+    Phoenix.PubSub.subscribe(Board.PubSub, self, "board_columns:#{id}")
+
     {:ok, assign(socket, column: column)}
+  end
+
+  def handle_info({:updated, %{column: column}}, socket) do
+    {:noreply, assign(socket, column: column)}
   end
 
   defp find_column(id) do
@@ -68,5 +83,13 @@ defmodule BoardWeb.LiveColumn do
     column_query = from col in Board.BoardColumn, where: col.id == ^id, order_by: [asc: :position], preload: [tickets: ^tickets_query]
 
     Board.Repo.one(column_query)
+  end
+
+  defp update_live_columns(column_ids), do: column_ids |> Enum.each(& update_live_column(&1))
+
+  defp update_live_column(column_id) do
+    column = find_column(column_id)
+
+    Phoenix.PubSub.broadcast(Board.PubSub, "board_columns:#{column_id}", {:updated, %{column: column}})
   end
 end
