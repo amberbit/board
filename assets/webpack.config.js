@@ -19,6 +19,9 @@ module.exports = (env, options) => ({
     filename: 'app.js',
     path: path.resolve(__dirname, '../priv/static/js')
   },
+  resolve: {
+    mainFields: ["module", "browser", "main"],
+  },
   module: {
     rules: [
       {
@@ -32,7 +35,7 @@ module.exports = (env, options) => ({
         test: /\.css$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader']
       }
-    ]
+    ],
   },
   plugins: [
     new MiniCssExtractPlugin({ filename: '../css/app.css' }),

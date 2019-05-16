@@ -43,7 +43,8 @@ defmodule Board.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:phoenix_live_view, github: "phoenixframework/phoenix_live_view"}
+      {:phoenix_live_view, github: "hubertlepicki/phoenix_live_view", branch: "feature/jsondiffpatch"},
+      {:json_diff_ex, "~> 0.5.0"}
     ]
   end
 

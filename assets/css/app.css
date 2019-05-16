@@ -8,6 +8,7 @@
   background-color: #fafafa;
   padding: 0 5px;
   height: 600px;
+  overflow: auto;
 }
 
 .board-column h4 {
